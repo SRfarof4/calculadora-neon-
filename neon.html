@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Neon Futurista</title>
+
+  <!-- Fonte Futurista -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Orbitron', sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#050510;
+      overflow:hidden;
+      padding:20px;
+    }
+
+    /* Fundo Neon */
+    body::before{
+      content:"";
+      position:absolute;
+      width:500px;
+      height:500px;
+      background:radial-gradient(circle, #00f7ff33, transparent 70%);
+      top:-100px;
+      left:-100px;
+    }
+
+    body::after{
+      content:"";
+      position:absolute;
+      width:500px;
+      height:500px;
+      background:radial-gradient(circle, #ff00ff22, transparent 70%);
+      bottom:-100px;
+      right:-100px;
+    }
+
+    .container{
+      position:relative;
+      width:380px;
+      z-index:1;
+    }
+
+    .calculadora{
+      width:100%;
+      padding:25px;
+      border-radius:25px;
+      background:rgba(15,15,30,0.85);
+      backdrop-filter:blur(12px);
+      border:1px solid #00f7ff55;
+
+      box-shadow:
+        0 0 20px #00f7ff55,
+        0 0 40px #00f7ff22,
+        inset 0 0 15px #00f7ff22;
+    }
+
+    .display{
+      width:100%;
+      height:80px;
+      border:none;
+      outline:none;
+      border-radius:15px;
+      margin-bottom:20px;
+      padding:15px;
+      background:#02020a;
+      color:#00f7ff;
+      font-size:2rem;
+      text-align:right;
+
+      box-shadow:
+        inset 0 0 10px #00f7ff55,
+        0 0 10px #00f7ff33;
+    }
+
+    .botoes{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:15px;
+    }
+
+    button{
+      height:65px;
+      border:none;
+      border-radius:15px;
+      background:#0f172a;
+      color:#fff;
+      font-size:1.2rem;
+      cursor:pointer;
+      transition:0.2s;
+      border:1px solid #00f7ff44;
+
+      box-shadow:
+        0 0 8px #00f7ff22,
+        inset 0 0 5px #00f7ff22;
+    }
+
+    button:hover{
+      transform:translateY(-3px);
+
+      box-shadow:
+        0 0 15px #00f7ff,
+        0 0 30px #00f7ff66;
+    }
+
+    button:active{
+      transform:scale(0.92);
+    }
+
+    .operador{
+      color:#ff00ff;
+      border:1px solid #ff00ff55;
+
+      box-shadow:
+        0 0 10px #ff00ff33,
+        inset 0 0 5px #ff00ff33;
+    }
+
+    .operador:hover{
+      box-shadow:
+        0 0 15px #ff00ff,
+        0 0 30px #ff00ff88;
+    }
+
+    .igual{
+      grid-column:span 2;
+      background:#00f7ff;
+      color:#050510;
+      font-weight:bold;
+
+      box-shadow:
+        0 0 15px #00f7ff,
+        0 0 35px #00f7ff88;
+    }
+
+    .igual:hover{
+      background:#5ffcff;
+    }
+
+    .clear{
+      color:#ff3131;
+      border:1px solid #ff313155;
+    }
+
+    .clear:hover{
+      box-shadow:
+        0 0 15px #ff3131,
+        0 0 30px #ff313188;
+    }
+
+    /* HISTÓRICO */
+
+    .historico{
+      margin-top:20px;
+      padding:15px;
+      border-radius:15px;
+      background:rgba(0,0,0,0.25);
+      border:1px solid #00f7ff33;
+
+      box-shadow:
+        inset 0 0 10px #00f7ff22;
+    }
+
+    .historico h2{
+      color:#00f7ff;
+      font-size:1rem;
+      margin-bottom:10px;
+      text-align:center;
+    }
+
+    #listaHistorico{
+      list-style:none;
+      max-height:180px;
+      overflow-y:auto;
+    }
+
+    #listaHistorico li{
+      color:#fff;
+      padding:8px;
+      margin-bottom:8px;
+      border-radius:10px;
+      background:#0f172a;
+
+      border-left:3px solid #ff00ff;
+
+      box-shadow:
+        0 0 5px #00f7ff22;
+
+      font-size:0.9rem;
+
+      animation:aparecer .3s ease;
+      cursor:pointer;
+    }
+
+    @keyframes aparecer{
+      from{
+        opacity:0;
+        transform:translateX(-10px);
+      }
+
+      to{
+        opacity:1;
+        transform:translateX(0);
+      }
+    }
+
+    /* Scroll Neon */
+
+    #listaHistorico::-webkit-scrollbar{
+      width:6px;
+    }
+
+    #listaHistorico::-webkit-scrollbar-thumb{
+      background:#00f7ff;
+      border-radius:10px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="calculadora">
+
+      <input type="text" class="display" id="display" disabled>
+
+      <div class="botoes">
+
+        <button class="clear" onclick="limpar()">C</button>
+        <button class="clear" onclick="apagar()">⌫</button>
+        <button class="operador" onclick="adicionar('÷')">÷</button>
+        <button class="operador" onclick="adicionar('×')">×</button>
+
+        <button onclick="adicionar('7')">7</button>
+        <button onclick="adicionar('8')">8</button>
+        <button onclick="adicionar('9')">9</button>
+        <button class="operador" onclick="adicionar('-')">−</button>
+
+        <button onclick="adicionar('4')">4</button>
+        <button onclick="adicionar('5')">5</button>
+        <button onclick="adicionar('6')">6</button>
+        <button class="operador" onclick="adicionar('+')">+</button>
+
+        <button onclick="adicionar('1')">1</button>
+        <button onclick="adicionar('2')">2</button>
+        <button onclick="adicionar('3')">3</button>
+        <button onclick="adicionar('.')">.</button>
+
+        <button onclick="adicionar('0')">0</button>
+        <button onclick="adicionar('(')">(</button>
+        <button onclick="adicionar(')')">)</button>
+
+        <button class="igual" onclick="calcular()">=</button>
+
+      </div>
+
+    </div>
+
+    <!-- HISTÓRICO -->
+
+    <div class="historico">
+
+      <h2>Histórico</h2>
+
+      <ul id="listaHistorico"></ul>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    const display =
+      document.getElementById("display");
+
+    const listaHistorico =
+      document.getElementById("listaHistorico");
+
+    // Adiciona números e operadores
+    function adicionar(valor){
+      display.value += valor;
+    }
+
+    // Limpa display
+    function limpar(){
+      display.value = "";
+    }
+
+    // Apaga último caractere
+    function apagar(){
+      display.value =
+        display.value.slice(0, -1);
+    }
+
+    // Calcula resultado
+    function calcular(){
+
+      try{
+
+        let contaOriginal =
+          display.value;
+
+        let conta =
+          contaOriginal
+            .replace(/÷/g, "/")
+            .replace(/×/g, "*");
+
+        let resultado = eval(conta);
+
+        display.value = resultado;
+
+        // Adiciona ao histórico
+        let item =
+          document.createElement("li");
+
+        item.textContent =
+          `${contaOriginal} = ${resultado}`;
+
+        // Clicar no histórico reutiliza conta
+        item.addEventListener("click", ()=>{
+
+          display.value = contaOriginal;
+
+        });
+
+        listaHistorico.prepend(item);
+
+        // Limita histórico
+        if(listaHistorico.children.length > 10){
+
+          listaHistorico.removeChild(
+            listaHistorico.lastChild
+          );
+
+        }
+
+      }catch{
+
+        display.value = "ERRO";
+
+      }
+
+    }
+
+    // SUPORTE TECLADO
+
+    document.addEventListener("keydown", (e)=>{
+
+      const teclasPermitidas =
+        "0123456789+-*/.()";
+
+      // Números e operadores
+      if(teclasPermitidas.includes(e.key)){
+
+        adicionar(e.key);
+
+      }
+
+      // Enter
+      else if(e.key === "Enter"){
+
+        calcular();
+
+      }
+
+      // Backspace
+      else if(e.key === "Backspace"){
+
+        apagar();
+
+      }
+
+      // ESC
+      else if(e.key === "Escape"){
+
+        limpar();
+
+      }
+
+      // Tecla C limpa
+      else if(
+        e.key === "c" ||
+        e.key === "C"
+      ){
+
+        limpar();
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
